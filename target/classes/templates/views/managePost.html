@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<title>Milan's Diverse Blog</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="Styles/style.css" th:href="@{/Styles/style.css}">
+<link rel="stylesheet" href="Styles/w3.css" th:href="@{/Styles/w3.css}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open Sans">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Oswald"
+}
+
+body {
+	font-family: "Open Sans"
+}
+</style>
+<body class="w3-light-grey" onload="parsURL()">
+
+	<!-- Navigation bar with social media icons -->
+	<div class="w3-bar w3-black">
+		<a href="/" class="w3-bar-item w3-button">Home</a>
+		<a href="/admin/logout" class="w3-bar-item w3-button">Log out</a>
+		<button class="w3-bar-item w3-button w3-right">
+		  	<img th:src="@{'/Slike/' + ${loggedAuthor.authorImg}}" class="w3-circle" style="height:25px; width:25px">
+		</button>
+		<a href="#" onclick="document.getElementById('searchBar').style.display='block'"
+			class="w3-bar-item w3-button w3-right"><i class="fa fa-search"></i></a>
+	</div>
+
+	<!-- w3-content defines a container for fixed size centered content, 
+and is wrapped around the whole page content, except for the footer in this example -->
+	<div class="w3-content w3-padding" th:switch="${mode}" style="max-width: 1600px">
+	
+		<!-- Choose your next step -->
+		<th:block th:case="MANAGE_BLOG">
+		<h1 class="w3-center w3-padding-16">MANAGE DIVERSE BLOG</h1>
+		<h2 class="w3-center w3-padding-16">What do you want:</h2>
+		<ul class="w3-ul w3-card-4 w3-hoverable">
+			<a href="/admin/newAuthor"><li class="w3-bar">
+			  <i class="w3-bar-item w3-xxlarge fa fa-user" style="width:85px"></i>
+			  <div class="w3-bar-item">
+			    <span class="w3-large">Add new Author</span><br>
+			  </div>
+			</li></a>
+			<a href="/admin/newPost"><li class="w3-bar">
+			  <i class="w3-bar-item w3-xxlarge fa fa-flag" style="width:85px"></i>
+			  <div class="w3-bar-item">
+			    <span class="w3-large">Add new Post</span><br>
+			  </div>
+			</li></a>
+			<a href="/admin/newTag"><li class="w3-bar">
+			  <i class="w3-bar-item w3-xxlarge fa fa-dot-circle-o" style="width:85px"></i>
+			  <div class="w3-bar-item">
+			    <span class="w3-large">Add new Tag</span><br>
+			  </div>
+			</li></a>
+		</ul>
+		<h2 class="w3-center w3-padding-16">MANAGE A POST (update/delete)</h2>
+		  <table class="w3-table w3-card-4 w3-light-grey">
+		    <tr>
+		      <td><b>Find a Post by:</b></td>
+		    </tr>
+		    <tr>
+		      <td>
+		      	<div class="w3-row-padding">
+				  <div class="w3-third">
+				    <select  class="w3-select w3-border" name="author" id="author" onchange="sendOptionValueToURL('author')">
+					    <option value="" disabled selected>Choose an Author</option>
+					    <th:block th:each="author : ${authors}">
+						    <option th:value="${author.authorId}" th:text="${author.firstName + ' ' + author.lastName}"></option>
+					    </th:block>
+					</select>
+				  </div> 
+				  <div class="w3-third">
+				    <select class="w3-select w3-border" name="tag" id="tag" onchange="sendOptionValueToURL('tag')">
+					    <option value="" disabled selected>Choose a Tag</option>
+						    <option th:each="tag : ${tags}" th:value=${tag.tagId} th:text="${tag.tagName}"></option>
+					</select>
+				  </div>
+				  <div class="w3-third">
+				    <select id="selectedOption" class="w3-select w3-border" name="title" required>
+					    <option value="" disabled selected>Choose a Title</option>
+					    <th:block th:if="${titles}">
+					    	<option th:each="title : ${titles}" th:text="${title}">Option 1</option>
+					    </th:block>
+					    <th:block th:if="${titlesByTag}">
+					    	<option th:each="title : ${titlesByTag}" th:text="${title}">Option 1</option>
+					    </th:block>
+					    <th:block th:if="${titlesByAuthor}">
+					    	<option th:each="title : ${titlesByAuthor}" th:text="${title}">Option 1</option>
+					    </th:block>
+					</select>
+				  </div>
+				</div>
+		      </td>
+		      <td rowspan="2"><i class="w3-xxlarge fa fa-edit" onclick="updateNaslov()"></i></td>
+		      <td rowspan="2"><i class="w3-xxlarge fa fa-trash" onclick="deleteNaslov()"></i></td>
+		    </tr>
+		  </table>
+		</th:block>
+		
+		<!-- Create new Author -->
+		<form action="/admin/newAuthors/addNew" method="POST" th:case="ADD_NEW_AUTHOR" enctype="multipart/form-data"
+			class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
+			
+			<!-- Error -->
+			<th:block th:switch="${error}">
+			<div th:case="INVALID_PASSWORD" class="w3-panel w3-red w3-display-container">
+			  <span onclick="this.parentElement.style.display='none'" class="w3-button w3-red w3-large w3-display-topright">&times;</span>
+			  <h3>Ups!</h3>
+			  <p>Password and Confirmed password are not same. Try again</p>
+			</div>
+			</th:block>
+			
+			<h2 class="w3-center">Add new Author</h2>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-user-o"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="firstName" type="text" placeholder="Enter the First Name" required>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-user-o"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="lastName" type="text" placeholder="Enter the Last Name" required>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-user"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="userName" type="text" placeholder="Enter the User name" required>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-lock"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="password" type="password" placeholder="Enter the Password" required>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-lock"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="confirmedPassword" type="password" placeholder="Confirm the password" required>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-image"></i>
+				</div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="file" type="file" required>
+				</div>
+			</div>
+
+			<input type="submit" value="Add New Author" class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding" />
+
+		</form>
+		
+		<!-- Create new Tag -->
+		<form action="/admin/newTag/addNew" th:case="ADD_NEW_TAG" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
+			<h2 class="w3-center">Add new Tag</h2>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-dot-circle-o"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="tagName" type="text" placeholder="Enter the Name of Tag" required>
+				</div>
+			</div>
+
+			<button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Add New Tag</button>
+
+		</form>
+
+		<!-- Create a Post -->
+		<form action="/admin/newPost/addNew" method="POST" th:case="ADD_NEW_POST" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
+			<h2 class="w3-center">Create a Post</h2>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-user"></i></div>
+				<div class="w3-rest">
+					<select class="w3-select  w3-border" name="authorId">
+					    <option value="" disabled selected>Choose the Author</option>
+					    <option th:each="author : ${authors}" th:value="${author.authorId}" th:text="${author.firstName + ' ' + author.lastName}">Milan Beronja</option>
+					  </select>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-flag"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="title" type="text" placeholder="Title" required>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge  fa fa-flash"></i>
+				</div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="subtitle" type="text" placeholder="Subtitle" required>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-info"></i>
+				</div>
+				<div class="w3-rest">
+					<textarea class="w3-input w3-border" name="gist" type="text" placeholder="Short text" required></textarea>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-edit"></i>
+				</div>
+				<div class="w3-rest">
+					<textarea class="w3-input w3-border" name="body" type="text" placeholder="Whole text" required></textarea>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-dot-circle-o"></i></div>
+				<div class="w3-rest">
+					<select class="w3-select  w3-border" name="tag">
+					    <option value="" disabled selected>Choose the Tag</option>
+					    <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.tagName}">Travel</option>
+					  </select>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-image"></i>
+				</div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="image" type="file" required>
+				</div>
+			</div>
+
+			<button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Create</button>
+
+		</form>
+		
+		<!-- Update a Post -->
+		<form action="/posts/update_post" method="POST" th:case="UPDATE_POST" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
+			<h2 class="w3-center">Update a Post</h2>
+			
+			<input name="postId" type="hidden" th:value="${post.postId}" >
+			<input name="image" type="hidden" th:value="${post.image}" >
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-user"></i></div>
+				<div class="w3-rest">
+					<select class="w3-select  w3-border" name="authorId">
+					    <option th:value="${author.authorId}" th:text="${author.firstName + ' ' + author.lastName}" ></option>
+					    <option th:each="author : ${authors}" th:value="${author.authorId}" th:text="${author.firstName + ' ' + author.lastName}">Milan Beronja</option>
+					  </select>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-flag"></i></div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="title" type="text" th:value="${post.title}" required>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge  fa fa-flash"></i>
+				</div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="subtitle" type="text" th:value="${post.subtitle}" required>
+				</div>
+			</div>
+
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-info"></i>
+				</div>
+				<div class="w3-rest">
+					<textarea class="w3-input w3-border" name="gist" type="text" th:utext="${post.gist}" required></textarea>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-edit"></i>
+				</div>
+				<div class="w3-rest">
+					<textarea class="w3-input w3-border" name="body" type="text" th:utext="${post.body}" required></textarea>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px"><i class="w3-xxlarge fa fa-dot-circle-o"></i></div>
+				<div class="w3-rest">
+					<select class="w3-select  w3-border" name="tag">
+						<option th:value="${selectedTag.tagId}" th:text="${selectedTag.tagName}" selected></option>
+					    <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.tagName}">Travel</option>
+					  </select>
+				</div>
+			</div>
+			
+			<div class="w3-row w3-section">
+				<div class="w3-col" style="width: 50px">
+					<i class="w3-xxlarge fa fa-image"></i>
+				</div>
+				<div class="w3-rest">
+					<input class="w3-input w3-border" name="updatedImage" type="file" >
+				</div>
+			</div>
+
+			<button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Update a Post</button>
+
+		</form>
+
+
+		<!-- END w3-content -->
+	</div>
+
+	<!-- Search Bar Modal -->
+	<div id="searchBar" class="w3-modal w3-animate-opacity">
+		<div class="w3-modal-content" style="padding: 32px">
+			<div class="w3-container w3-white">
+				<i
+					onclick="document.getElementById('searchBar').style.display='none'"
+					class="fa fa-remove w3-transparent w3-button w3-xlarge w3-right"></i>
+				<h2 class="w3-wide">SEARCH</h2>
+				<p>Search your favorite blog post by key words.</p>
+				<p>
+					<input class="w3-input w3-border" type="text"
+						placeholder="Enter something">
+				</p>
+				<a href="radi"
+					onclick="document.getElementById('searchBar').style.display='none'"
+					style="text-decoration: none"><button type="button"
+						class="w3-button w3-block w3-padding-large w3-red w3-margin-bottom">Search</button></a>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Footer -->
+	<footer class="w3-container w3-dark-grey" style="padding: 32px">
+		<a href="#"
+			class="w3-button w3-black w3-padding-large w3-margin-bottom"><i
+			class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+		<div style="float: right; padding: 32px; clear: left;">
+			Powered by <a href="http://www.vebkreativa.rs/" target="_blank">Milan Beronja - VEBKREATIVA</a>
+		</div>
+	</footer>
+
+	<script>
+		function sendOptionValueToURL(id){
+			var selectedElement = document.getElementById(id);
+			var selectedOption = selectedElement.selectedIndex;
+			var optionValue = selectedElement.options[selectedOption].value;
+			window.location = "/admin/" + id + "/" + optionValue;
+		}
+		
+		function parsURL(){
+			var url = window.location.href;
+			if(url.search("tag/") != -1){
+				var tagStartPosition = url.search("tag/");
+				var tagId = url.substr(tagStartPosition + 4)
+				document.getElementById("tag").value = tagId;
+				return;
+			}
+			if(url.search("author/") != -1){
+				var authorStartPosition = url.search("author/");
+				var authorId = url.substr(authorStartPosition + 7)
+				document.getElementById("author").value = authorId;
+				return;
+			}
+		}
+		
+		function updateNaslov(){		
+			var postTitle = document.getElementById('selectedOption').value;
+			window.location = "/posts/update_post/" + postTitle;
+		}
+		
+		function deleteNaslov(){		
+			var postTitle = document.getElementById('selectedOption').value;
+			alert('Do you realy want to delete this Post: "' + postTitle + '"');
+			window.location = "/posts/delete_post/" + postTitle;
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<title>Milan's Diverse Blog</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="Styles/style.css" th:href="@{/Styles/style.css}">
+<link rel="stylesheet" href="Styles/w3.css" th:href="@{/Styles/w3.css}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open Sans">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+h1,h2,h3,h4,h5,h6 {font-family: "Oswald"}
+body {font-family: "Open Sans"}
+</style>
+<body class="w3-light-grey">
+
+<!-- Navigation bar with social media icons -->
+<div class="w3-bar w3-black">
+  <a href="/" class="w3-bar-item w3-button">Home</a>
+
+  <div class="w3-dropdown-hover">
+    <button class="w3-button">Authors</button>
+    <div class="w3-dropdown-content w3-bar-block w3-card-4">
+    	<th:block th:each="author : ${authors}">
+    		<a th:href="@{'/authors/' + ${author.authorId}}" class="w3-bar-item w3-button" 
+    		th:text="${author.firstName + ' ' + author.lastName}"></a>
+    	</th:block>
+    </div>
+  </div>
+  <div class="w3-dropdown-hover">
+    <button class="w3-button">Tags</button>
+    <div class="w3-dropdown-content w3-bar-block w3-card-4">
+    	<th:block th:each="tag : ${tags}">
+    		<a th:href="@{'/tags/' + ${tag.tagId}}" class="w3-bar-item w3-button" th:text="${tag.tagName}"></a>
+    	</th:block>
+    </div>
+  </div>
+  <button class="w3-bar-item w3-button" onclick="document.getElementById('admin').style.display='block'">Admin</button>
+  <a href="#" onclick="document.getElementById('searchBar').style.display='block'" class="w3-bar-item w3-button w3-right"><i class="fa fa-search"></i></a>
+</div>
+  
+<!-- w3-content defines a container for fixed size centered content, 
+and is wrapped around the whole page content, except for the footer in this example -->
+<div class="w3-content" style="max-width:1600px">
+
+	<!-- Error -->
+	<th:block th:switch="${error}">
+	<div th:case="INVALID_AUTHOR" class="w3-panel w3-red w3-display-container">
+	  <span onclick="this.parentElement.style.display='none'" class="w3-button w3-red w3-large w3-display-topright">&times;</span>
+	  <h3>Ups!</h3>
+	  <p>Username or Password is incorecte.</p>
+	</div>
+	<div th:case="INVALID_ADMIN" class="w3-panel w3-red w3-display-container">
+	  <span onclick="this.parentElement.style.display='none'" class="w3-button w3-red w3-large w3-display-topright">&times;</span>
+	  <h3>Ups!</h3>
+	  <p>You are not an Admin user so you can not access that page.</p>
+	</div>
+	</th:block>
+  <!-- Header -->
+  <header class="w3-container w3-center w3-padding-24 w3-white">
+    <h1 class="w3-xxxlarge"><b>MILAN BLOGLIFE</b></h1>
+    <h6>Welcome to the blog of <span class="w3-tag">Milan's interests</span></h6>
+  </header>
+
+  <!-- Image header -->
+  <header class="w3-display-container w3-wide" id="home">
+    <img class="w3-image" th:src="@{/Slike/mainImage.jpg}" alt="Milan's interests" width="1600" height="1060">
+    <div class="w3-display-left w3-padding-large">
+      <h1 class="w3-text-white">Milan's</h1>
+      <h1 class="w3-jumbo w3-text-white w3-hide-small"><b>DIVERSE BLOG</b></h1>
+      <h6><button class="w3-button w3-white w3-padding-large w3-large w3-opacity w3-hover-opacity-off" onclick="document.getElementById('subscribe').style.display='block'">SUBSCRIBE</button></h6>
+    </div>
+  </header>
+
+  <!-- Grid -->
+  <div class="w3-row w3-padding w3-border">
+
+    <!-- Blog entries -->
+    <div class="w3-col l8 s12">
+    
+      <!-- Blog entry -->
+      <div class="w3-container w3-white w3-margin w3-padding-large">
+        <div class="w3-center">
+          <h3 th:utext="${post.title}">BELGRADE - WORLD WIDE KNOWN DESTINATION</h3>
+          <h5 th:utext="${post.subtitle}">Belgrade is one of most popular European destination for traveling</h5>
+        </div>
+		<span class="w3-opacity w3-right" th:text="'Posted on: ' + ${#dates.monthName(post.postedOn)} + ${#dates.format(post.postedOn, ' dd, yyyy')}">Jun 2, 2018</span>
+        <div class="w3-justify">
+          <img th:src="@{${'/Slike/' + post.image}}" style="width:100%" class="w3-padding-16">
+		  <th:block th:utext="${post.body}"></th:block>
+          <h5><span class="w3-opacity" th:utext="'Writen by author: ' + ${post.author.firstName} + ' ' + ${post.author.lastName}">Writen by author: </span></h5>
+          <p class="w3-left"><button class="w3-button w3-padding-small w3-black" onclick="document.getElementById('comment').style.display='block'"><b>Add comment </b></button></p>
+          <p class="w3-clear"></p>
+        </div>
+      </div>
+      <hr>
+      
+    <!-- END BLOG ENTRIES -->
+    </div>
+
+    <!-- About/Information menu -->
+    <div class="w3-col l4">
+
+       <!-- Posts -->
+      <div class="w3-white w3-margin">
+        <div class="w3-container w3-padding w3-black">
+          <h4>Popular Posts</h4>
+        </div>
+        <ul class="w3-ul w3-hoverable w3-white"><a th:each="post : ${favouritePosts}"  th:href="@{'/posts/' + ${post.postId}}" style="text-decoration: none">
+          <li class="w3-padding-16">
+            <img th:src="@{${'/Slike/' + post.author.authorImg}}" alt="Image" class="w3-left w3-margin-right" style="width:50px">
+            <span th:utext="${post.title}" class="w3-large">Denim</span>
+            <br>
+            <span th:utext="${post.subtitle}">Sed mattis nunc</span>
+          </li></a>
+        </ul>
+      </div>
+      <hr>
+
+      <!-- Advertising -->
+      <div class="w3-white w3-margin">
+        <div class="w3-container w3-padding w3-black">
+          <h4>Advertise</h4>
+        </div>
+        <div class="w3-container w3-white">
+          <div class="w3-container w3-display-container w3-light-grey w3-section" style="height:200px">
+            <span class="w3-display-middle">Your AD Here</span>
+          </div>
+        </div>
+      </div>
+      <hr>
+
+      <!-- Tags -->
+      <div class="w3-white w3-margin">
+        <div class="w3-container w3-padding w3-black">
+          <h4>Tags</h4>
+        </div>
+        <div class="w3-container w3-white">
+          <p>
+            <th:block th:each="tag : ${tags}">
+	        	<span class="w3-tag w3-black w3-margin-bottom" th:if="${#strings.equals(post.tag, #strings.toString(tag.tagId))}" >
+	        		<a th:href="@{'/tags/' + ${tag.tagId}}"  th:text="${tag.tagName}" style="text-decoration: none"></a>
+	        	</span>
+	        	<span class="w3-tag w3-light-grey w3-margin-bottom" th:unless="${#strings.equals(post.tag, #strings.toString(tag.tagId))}"> 
+	        		<a th:href="@{'/tags/' + ${tag.tagId}}"  th:text="${tag.tagName}" style="text-decoration: none"></a>
+	        	</span>
+	    	</th:block>
+          </p>
+        </div>
+      </div>
+      <hr>
+
+      <!-- Follow Me -->
+
+      <div class="w3-white w3-margin">
+        <div class="w3-container w3-padding w3-black">
+          <h4>Follow Me</h4>
+        </div>
+        <div class="w3-container w3-xlarge w3-padding">
+          <a href="https://www.facebook.com/"><i class="fa fa-facebook-official w3-hover-opacity"></i></a>
+          <a href="https://www.instagram.com/"><i class="fa fa-instagram w3-hover-opacity"></i></a>
+          <a href="https://www.snapchat.com/"><i class="fa fa-snapchat w3-hover-opacity"></i></a>
+          <a href="https://www.pinterest.com/"><i class="fa fa-pinterest-p w3-hover-opacity"></i></a>
+          <a href="https://twitter.com/"><i class="fa fa-twitter w3-hover-opacity"></i></a>
+          <a href="https://www.linkedin.com/"><i class="fa fa-linkedin w3-hover-opacity"></i></a>
+        </div>
+      </div>
+      <hr>
+      
+      <!-- Subscribe -->
+      <div class="w3-white w3-margin">
+        <div class="w3-container w3-padding w3-black">
+          <h4>Subscribe</h4>
+        </div>
+        <div class="w3-container w3-white">
+          <p>Enter your e-mail below and get notified on the latest blog posts.</p>
+          <p><input class="w3-input w3-border" type="text" placeholder="Enter e-mail" style="width:100%"></p>
+          <p><button type="button" onclick="document.getElementById('subscribe').style.display='block'" class="w3-button w3-block w3-red">Subscribe</button></p>
+        </div>
+      </div>
+
+    <!-- END About/Intro Menu -->
+    </div>
+
+  <!-- END GRID -->
+  </div>
+
+<!-- END w3-content -->
+</div>
+
+<!-- Search Bar Modal -->
+<div id="searchBar" class="w3-modal w3-animate-opacity">
+  <div class="w3-modal-content" style="padding:32px">
+    <div class="w3-container w3-white">
+      <i onclick="document.getElementById('searchBar').style.display='none'" class="fa fa-remove w3-transparent w3-button w3-xlarge w3-right"></i>
+      <h2 class="w3-wide">SEARCH</h2>
+      <p>Search your favorite blog post by key words.</p>
+      <p><input class="w3-input w3-border" type="text" placeholder="Enter something"></p>
+      <a href="radi" onclick="document.getElementById('searchBar').style.display='none'" style="text-decoration: none"><button type="button" class="w3-button w3-block w3-padding-large w3-red w3-margin-bottom">Search</button></a>
+    </div>
+  </div>
+</div>
+
+<!-- Subscribe Modal -->
+<div id="subscribe" class="w3-modal w3-animate-opacity">
+  <div class="w3-modal-content" style="padding:32px">
+    <div class="w3-container w3-white">
+      <i onclick="document.getElementById('subscribe').style.display='none'" class="fa fa-remove w3-transparent w3-button w3-xlarge w3-right"></i>
+      <h2 class="w3-wide">SUBSCRIBE</h2>
+      <p>Join my mailing list to receive updates on the latest blog posts and other things.</p>
+      <p><input class="w3-input w3-border" type="text" placeholder="Enter e-mail"></p>
+      <button type="button" class="w3-button w3-block w3-padding-large w3-red w3-margin-bottom" onclick="document.getElementById('subscribe').style.display='none'">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="admin" class="modal">
+  
+  <form class="modal-content animate" action="/admin" method="POST">
+    <div class="imgcontainer">
+      <span onclick="document.getElementById('admin').style.display='none'" class="close" title="Close Modal">&times;</span>
+      <img src="../Slike/person.jpg" alt="Admn User" style="max-height:200px; max-width:200px" class="avatar">
+    </div>
+
+    <div class="container">
+      <label for="uname"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="userName" required>
+
+      <label for="psw"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+        
+      <button type="submit">Login</button>
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('admin').style.display='none'" class="cancelbtn">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- Comment Modal -->
+<div id="comment" class="modal">
+  
+  <form class="modal-content animate" action="/posts/add_comment" enctype="multipart/form-data" method="post">
+    <div class="imgcontainer">
+      <span onclick="document.getElementById('comment').style.display='none'" class="close" title="Close Modal">&times;</span>
+      <img src="../Slike/person.jpg" alt="User" style="max-height:200px; max-width:200px" class="avatar">
+    </div>
+
+    <div class="container">
+      <input type="hidden" name="postId" th:value="${post.postId}" >
+    
+      <label for="uname"><b>Username</b></label>
+      <input type="text" placeholder="Enter your Name, Nickname or Username" name="userName" required><br><br>
+      
+      <label for="lkd"><b>Did you like the comment?</b></label>
+      <select class="w3-select  w3-border" name="liked" required>
+	    <option value="" disabled selected>Choose the Like or Dislike</option>
+	    <option value="true" >Like</option>
+	    <option value="false" >Dislike</option>
+	  </select><br/><br/>
+
+      <label for="comnt"><b>Comment</b></label>
+      <input type="text" placeholder="Enter Comment" name="commentBody" required><br/><br/>
+      
+      <label for="uImage"><b>Upload your image</b></label>
+      <input name="userImg" type="file" ><br/><br/>
+        
+      <button type="submit">Login</button>
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('comment').style.display='none'" class="cancelbtn">Cancel</button>
+    </div>
+  </form>
+</div>
+
+
+<!-- Footer -->
+<footer class="w3-container w3-dark-grey" style="padding:32px">
+  <a href="#" class="w3-button w3-black w3-padding-large w3-margin-bottom"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+  <div style="float: right; padding: 32px; clear: left;">Powered by <a href="http://www.vebkreativa.rs/" target="_blank">Milan Beronja - VEBKREATIVA</a></div>
+</footer>
+
+<script>
+function addComment(){
+	
+}
+
+
+
+</script>
+
+</body>
+</html>
