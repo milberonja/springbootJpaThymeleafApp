@@ -1,3 +1,3 @@
 # springBootCRUDThymeleafJarApp
-Spring boot web jar application with Thymeleaf view and CRUD Repository
-"# This is spring boot JPA application with Thymeleaf for viewing" 
+Spring boot web jar application with Thymeleaf view and CRUD Repository. For database is used MySQL. This app is created by MVC patern. There are four Entity: Author, Post, Tag and Comment and between them there are diferent relations (OneToOne, ManyToOne and ManyToMany). All Entity have Get and Set methods and toString method. For all of this entites there are one Controller and Servis class and one plus Controller Class for Home - index page and for Admin. This did from reason bigger simplicity and code readability. 
+This is also single page application (SPA) - Although the application has several different views, there are only two html pages in which Thymeleaf code is embedded.
