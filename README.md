@@ -1,21 +1,21 @@
 # springBootCRUDThymeleafJarApp
-•	Quick description
+### Quick description
 
-This is Spring boot application that use MySQL for storing data and Thymeleaf for presentation. Although it is not used Spring boot Security, admin part of application is still secured using Session (after every unauthorised request application redirect to login page).
+* This is Spring boot application that use MySQL for storing data and Thymeleaf for presentation. Although it is not used Spring boot Security, admin part of application is still secured using Session (after every unauthorised request application redirect to login page).
 
-This is Blog application that besides simple CRUD operations have also and demandig operations like searching for blog by title, author or keywords.
+* This is Blog application that besides simple CRUD operations have also and demandig operations like searching for blog by title, author or keywords.
 
-Also, this is Single page aplication (SPA) – although the application has several different views, there are only two html pages in which Thymeleaf code is embedded. This app is suplied with oportunity to upload image and use it like admin, author or user image.
+* Also, this is Single page aplication (SPA) – although the application has several different views, there are only two html pages in which Thymeleaf code is embedded. This app is suplied with oportunity to upload image and use it like admin, author or user image.
 
-•	Used thechnologies
+## Used thechnologies
 
-Spring boot,
+* Spring boot,
 
-Thymeleaf,
+* Thymeleaf,
 
-JPA (Hibernate),
+* JPA (Hibernate),
 
-MySQL.
+* MySQL.
 
 •	Database manegement system
 
