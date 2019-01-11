@@ -7,7 +7,7 @@
 
 * Also, this is Single page aplication (SPA) – although the application has several different views, there are only two html pages in which Thymeleaf code is embedded. This app is suplied with oportunity to upload image and use it like admin, author or user image.
 
-## Used thechnologies
+### Used thechnologies
 
 * Spring boot,
 
@@ -17,7 +17,7 @@
 
 * MySQL.
 
-•	Database manegement system
+### * Database manegement system
 
 MySQL for storing data.
 
@@ -25,7 +25,7 @@ In application.properties file are defined credential values for datasource url,
 
 CommandLineAppStartupRunner class implements CommandLineRunner and it use to populate database with starting data how application would working properly at the same start. This class is annotated with @Componet annotation and also use @Autowired annotation.
 
-•	Models – Entities
+###  * Models – Entities
 
 There are for entities: Post, Author, Tag and Comment. All entities are annotated with @Entity and have No-args-constructor method, With-args-constructor method, Get and Set methods and ToString method. Also, in almost all of this entities are used next annotations: @Id, @GeneratedValue, @Column, @CreatedDate.
 
