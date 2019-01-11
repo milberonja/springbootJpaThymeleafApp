@@ -59,7 +59,7 @@ Custom security through Session – not used Spring boot Security
 
 •	Introduction for cloning
 
-git clone https://github.com/milberonja/springbootJpaThymeleafApp
+git clone https://github.com/milberonja/springbootJpaThymeleafApp.git
 
 In your MySQL or another Database manegement system create database with name diverseblog
 
